@@ -1,0 +1,80 @@
+DROP SCHEMA if exists ProjetAAE CASCADE;
+CREATE SCHEMA ProjetAAE;
+
+create table ProjetAAE.adresse
+(
+	id_adresse serial primary key,
+	rue varchar(60) not null ,
+	numero varchar(6) not null ,
+	boite varchar(6) not null ,
+	code_postale int not null,
+	commune varchar(60) not null
+);
+
+
+CREATE TABLE ProjetAAE.membres (
+    id_membre        serial primary key not null,
+    nom              varchar(60)        not null ,
+    prenom           varchar(60)        not null ,
+    pseudo           varchar(60)  not null ,
+    mot_de_passe     varchar(60)        not null ,
+    est_admin        boolean            not null DEFAULT FALSE,
+    statut           varchar(10)            not null,
+    raison_refus     varchar(60),
+    numero_telephone varchar(20),
+    adresse          integer            not null,
+    FOREIGN KEY (adresse) REFERENCES ProjetAAE.adresse (id_adresse)
+);
+
+
+CREATE TABLE projetaae.types_objets
+(
+    id_type_objet serial PRIMARY KEY,
+    intitule      varchar(255) not null
+);
+
+CREATE TABLE projetaae.objets
+(
+    id_objet        serial primary key,
+    type            integer not null ,
+    description     varchar(500) not null ,
+    url_photo       varchar(500),
+    offreur         integer  not null,
+    plage_horaire   varchar(500) not null,
+    receveur        integer null,
+    etat            varchar(50) not null ,
+
+    FOREIGN KEY  (type) REFERENCES projetaae.types_objets(id_type_objet),
+    FOREIGN KEY (offreur) REFERENCES projetaae.membres(id_membre),
+    FOREIGN KEY (receveur) REFERENCES projetaae.membres(id_membre)
+);
+
+
+
+
+CREATE TABLE ProjetAAE.interets_membres_objet
+(
+    membre  INTEGER NOT NULL,
+    objet   INTEGER NOT NULL,
+    date_disponible varchar(60)             NOT NULL ,
+    souhait_discussion_modalite varchar(120) NOT NULL ,
+    FOREIGN KEY (membre) REFERENCES ProjetAAE.membres (id_membre),
+    FOREIGN KEY (objet) REFERENCES ProjetAAE.objets (id_objet),
+    PRIMARY KEY (membre, objet)
+);
+
+CREATE TABLE ProjetAAE.offres (
+    id_offre SERIAL PRIMARY KEY not null,
+    date_du_jour DATE NOT NULL DEFAULT current_date,
+    objet INTEGER NOT NULL,
+    offre_precedente INTEGER NOT NULL,
+    FOREIGN KEY  (objet) REFERENCES  ProjetAAE.objets (id_objet),
+    FOREIGN KEY  (offre_precedente) REFERENCES  ProjetAAE.offres(id_offre)
+);
+
+CREATE TABLE ProjetAAE.evaluations (
+    objet INTEGER NOT NULL,
+    note INTEGER NOT NULL ,
+    commentaire VARCHAR(100) NOT NULL,
+    FOREIGN KEY (objet) REFERENCES ProjetAAE.objets (id_objet)
+);
